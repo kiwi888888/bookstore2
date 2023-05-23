@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8"/>
+  <title>尚硅谷会员注册页面</title>
+  <base href="/bookstore/" />
+  <link type="text/css" rel="stylesheet" href="static/css/style.css"/>
+  <link rel="stylesheet" href="static/css/register.css"/>
+  <style type="text/css">
+    .login_form {
+      height: 420px;
+      margin-top: 25px;
+    }
+  </style>
+  <script type="text/javascript" src="static/script/vue.js"></script>
+</head>
+<body>
+<div id="login_header">
+  <a href="index.html">
+    <img class="logo_img" alt="" src="static/img/logo.gif"/>
+  </a>
+</div>
+
+<div id="vueApp" class="login_banner">
+  <div class="register_form">
+    <h1>注册尚硅谷会员</h1>
+    <form action="registerServlet" method="post">
+      <div class="form-item">
+        <div>
+          <label>用户名称:</label>
+          <input type="text" placeholder="请输入用户名" name="username" v-model.trim="username" @change="checkUsername"/>
+        </div>
+        <span class="errMess" :style="usernameCSS">{{usernameErrMsg}}</span>
+      </div>
+      <div class="form-item">
+        <div>
+          <label>用户密码:</label>
+          <!-- name 属性：设置提交表单时使用的请求参数的名称 -->
+          <!-- v-model.trim 属性：本质上设置的是value属性如何渲染 -->
+          <input type="password" placeholder="请输入密码" name="password" v-model.trim="userPwd"
+                 @change="checkPwd"/>
+        </div>
+        <span class="errMess" :style="userPwdCSS">{{userPwdErrMsg}}</span>
+      </div>
+      <div class="form-item">
+        <div>
+          <label>确认密码:</label>
+          <input type="password" placeholder="请输入确认密码" v-model.trim="confirmPwd"
+                 @change="checkConfirmPwd"/>
+        </div>
+        <span class="errMess" :style="confirmPwdCSS">{{confirmPwdErrMsg}}</span>
+      </div>
+      <div class="form-item">
+        <div>
+          <label>用户邮箱:</label>
+          <input type="text" placeholder="请输入邮箱" name="email" v-model.trim="email" @change="checkEmail"/>
+        </div>
+        <span class="errMess" :style="emailCSS">{{emailErrMsg}}</span>
+      </div>
+      <div class="form-item">
+        <div>
+          <label>验证码:</label>
+          <div class="verify">
+            <input type="text" placeholder=""/>
+            <img src="static/img/code.bmp" alt=""/>
+          </div>
+        </div>
+        <span class="errMess">请输入正确的验证码</span>
+      </div>
+      <button class="btn" @click.prevent="doSubmit">注册</button>
+    </form>
+  </div>
+</div>
+<div id="bottom">
+      <span>
+        尚硅谷书城.Copyright &copy;2015
+      </span>
+</div>
+</body>
+<script type="text/javascript">
+  new Vue({
+    "el": "#vueApp",
+    "data": {
+      // username和input标签双向绑定，由于页面初始化状态显示时就没有值，所以设置为空字符串
+      "username": "",
+      "usernameErrMsg": "用户名应为6~16位数组和字母组成",
+      "usernameCSS": {
+        "visibility": "hidden"
+      },
+      "userPwd": "",
+      "userPwdErrMsg": "密码的长度至少为8位",
+      "userPwdCSS": {
+        "visibility": "hidden"
+      },
+      "confirmPwd": "",
+      "confirmPwdCSS": {
+        "visibility": "hidden"
+      },
+      "confirmPwdErrMsg": "密码两次输入不一致",
+      "email": "",
+      "emailCSS": {
+        "visibility": "hidden"
+      },
+      "emailErrMsg": "请输入正确的邮箱格式"
+    },
+    "methods": {
+      "checkUsername": function () {
+        // 确认事件响应函数绑定是否成功
+        console.log("用户名文本框值发生了改变☆☆☆");
+
+        // 不管校验是否通过，都显示提示消息
+        this.usernameCSS = {"visibility": "visible"};
+
+        // 创建正则表达式对象：用户名应为6~16位数组和字母组成
+        let reg = /^[A-Za-z0-9]{6,16}$/;
+
+        // 使用正则表达式对用户名进行检测
+        if (reg.test(this.username)) {
+          this.usernameErrMsg = "√";
+          // 当前方法执行校验的结果，需要返回一个布尔值
+          // 目的是方便在注册按钮的单击响应函数中进行总的判断
+          return true;
+        } else {
+          this.usernameErrMsg = "用户名应为6~16位数组和字母组成";
+          return false;
+        }
+      },
+      "checkPwd": function () {
+        // 不管校验是否通过，都让 CSS 样式设置为显示
+        this.userPwdCSS = {"visibility": "visible"};
+
+        // 创建正则表达式对象
+        let reg = /^[A-Za-z0-9]{8,}$/;
+
+        // 校验
+        if (reg.test(this.userPwd)) {
+          // 校验通过
+          this.userPwdErrMsg = "√";
+          return true;
+        } else {
+          // 校验失败
+          this.userPwdErrMsg = "密码的长度至少为8位";
+          return false;
+        }
+      },
+      "checkConfirmPwd": function () {
+        this.confirmPwdCSS = {"visibility": "visible"};
+
+        if (this.confirmPwd == null || this.confirmPwd == "") {
+          this.confirmPwdErrMsg = "确认密码不能为空";
+          return false;
+        }
+
+        if (this.confirmPwd == this.userPwd) {
+          this.confirmPwdErrMsg = "√";
+          return true;
+        } else {
+          this.confirmPwdErrMsg = "密码两次输入不一致";
+          return false;
+        }
+      },
+      "checkEmail": function () {
+        this.emailCSS = {"visibility": "visible"};
+        let reg = /^[a-zA-Z0-9_\.-]+@([a-zA-Z0-9-]+[\.]{1})+[a-zA-Z]+$/;
+        if (reg.test(this.email)) {
+          this.emailErrMsg = "√";
+          return true;
+        } else {
+          this.emailErrMsg = "请输入正确的邮箱格式";
+          return false;
+        }
+      },
+      "doSubmit": function () {
+        // 依次调用每一个表单项的校验方法，要求每一个方法都校验通过（返回true）才能提交表单
+        if (this.checkUsername() && this.checkPwd() && this.checkConfirmPwd() && this.checkEmail()) {
+          // 提交表单
+          event.target.parentElement.submit();
+        }
+      }
+    }
+  });
+</script>
+</html>
